@@ -1,15 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateAssignmentDto } from './dto/create-assignment.dto';
 import { UpdateAssignmentDto } from './dto/update-assignment.dto';
+import { Assignment } from './entities/assignment.entity';
 
 @Injectable()
 export class AssignmentsService {
+  constructor(
+    @Inject('ASSIGNMENT_REPOSITORY')
+    private assignmentRepository: typeof Assignment
+  ){}
   create(createAssignmentDto: CreateAssignmentDto) {
     return 'This action adds a new assignment';
   }
 
-  findAll() {
-    return `This action returns all assignments`;
+  async findAll() {
+    return await this.assignmentRepository.findAll();
   }
 
   findOne(id: number) {
