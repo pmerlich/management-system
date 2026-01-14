@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateShiftDto } from './dto/create-shift.dto';
 import { Shift } from './entities/shift.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -14,21 +14,22 @@ export class ShiftsService {
   async create(createShiftDto: CreateShiftDto, user: any) {
     const newshift = await this.shiftRepository.create({startTime: createShiftDto.startTime, endTime: createShiftDto.endTime, location: createShiftDto.location})
     const myUser: User | null = await this.userRepository.findOne({where: {name: user.username}})
-    if (myUser){
-      await newshift.$add('Users',myUser.id)
-      return await myUser.$get('shifts')
+    if (!myUser){
+      throw new NotFoundException(`User '${user.username}' not found`);
     }
+    await newshift.$add('Users',myUser.id)
+    return await myUser.$get('shifts')
   }
 
-  async createForSoldier(createShiftDto: CreateShiftDto, id: number) {
+  async createForSoldier(createShiftDto: CreateShiftDto, id: string) {
     const newshift = await this.shiftRepository.create({startTime: createShiftDto.startTime, endTime: createShiftDto.endTime, location: createShiftDto.location})
-    const myUser: User | null = await this.userRepository.findOne({where: {id: id["id"]}})    
-    if (myUser){
-      await newshift.$add('Users',myUser.id)
-      return await myUser.$get('shifts')
-    } else {
-      return `user #${id["id"]} not found.`
+    const userId = Number(id);
+    const myUser: User | null = await this.userRepository.findOne({where: {id: userId}})    
+    if (!myUser){
+      throw new NotFoundException(`User #${userId} not found.`);
     }
+    await newshift.$add('Users',myUser.id)
+    return await myUser.$get('shifts')
   }
 
   findAll() {
@@ -37,9 +38,10 @@ export class ShiftsService {
 
   async findAllByName(user) {
     const myUser: User | null = await this.userRepository.findOne({where: {name: user.username}})
-    if (myUser){
-      return await myUser.$get('shifts')
+    if (!myUser){
+      throw new NotFoundException(`User '${user.username}' not found`);
     }
+    return await myUser.$get('shifts')
   }
 
 
@@ -47,8 +49,12 @@ export class ShiftsService {
   const shift = await this.shiftRepository.findOne({ where: { id: shiftId } })
   const newUser = await this.userRepository.findOne({ where: { id: newUserId } })
 
-  if (!shift) return `shift #${shiftId} not found`
-  if (!newUser) return `user #${newUserId} not found`
+  if (!shift) {
+    throw new NotFoundException(`Shift #${shiftId} not found`);
+  }
+  if (!newUser) {
+    throw new NotFoundException(`User #${newUserId} not found`);
+  }
 
   await shift.$set('users', [newUser.id])
 

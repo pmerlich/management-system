@@ -7,13 +7,14 @@ export const databaseProviders = [
   {
     provide: 'SEQUELIZE',
     useFactory: async () => {
+      const port = process.env.DB_PORT ? Number(process.env.DB_PORT) : 3307;
       const sequelize = new Sequelize({
         dialect: 'mysql',
-        host: 'localhost',
-        port: 3307,
-        username: 'appuser3',
-        password: 'apppass3',
-        database: 'management_db',
+        host: process.env.DB_HOST ?? 'localhost',
+        port,
+        username: process.env.DB_USER ?? 'appuser3',
+        password: process.env.DB_PASSWORD ?? 'apppass3',
+        database: process.env.DB_NAME ?? 'management_db',
       });
       sequelize.addModels([User, Shift, Assignment]);
       await sequelize.sync();
@@ -21,4 +22,3 @@ export const databaseProviders = [
     },
   },
 ];
-
