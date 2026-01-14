@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import * as bcrypt from 'bcrypt';
@@ -14,18 +14,23 @@ export class AuthService {
     private jwtService: JwtService 
   ) {}
     async create(createAuthDto: CreateAuthDto) {
-        const hash = await bcrypt.hash(createAuthDto.password, 10)
-        createAuthDto.password = hash
-        await this.userRepository.create({name: createAuthDto.name, email: createAuthDto.email, password: createAuthDto.password, role: createAuthDto.role})
-        return 'This action adds a new assignment';
+        const hash = await bcrypt.hash(createAuthDto.password, 10);
+        const createdUser = await this.userRepository.create({
+            name: createAuthDto.name,
+            email: createAuthDto.email,
+            password: hash,
+            role: createAuthDto.role,
+        });
+        return {
+            id: createdUser.id,
+            name: createdUser.name,
+            email: createdUser.email,
+            role: createdUser.role,
+        };
     }
 
     async signIn(loginAuthDto:LoginAuthDto): Promise<{ access_token: string }> {        
         const user = await this.findOneByName(loginAuthDto.name);
-        
-        if (typeof user === 'string') {
-            throw new UnauthorizedException();
-        }
         const userData = await user.toJSON();        
         const isMatch = await bcrypt.compare(loginAuthDto.password, userData.password);
         if (!isMatch) {
@@ -41,7 +46,7 @@ export class AuthService {
     async findOneByName(name: string) {        
         const user = await this.userRepository.findOne({where: {name: name}})        
         if (user === null){
-            return `User '${name}' not found`;
+            throw new NotFoundException(`User '${name}' not found`);
         }
         return user
     }

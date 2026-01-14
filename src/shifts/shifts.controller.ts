@@ -1,4 +1,4 @@
-import { Controller, Request, Get, Post, Body, Patch, Param, Delete, ValidationPipe, UseGuards, Put, Query } from '@nestjs/common';
+import { Controller, Request, Get, Post, Body, Param, Delete, UseGuards, Put, Query } from '@nestjs/common';
 import { ShiftsService } from './shifts.service';
 import { CreateShiftDto } from './dto/create-shift.dto';
 import { CommanderGuard, TokenGuard } from 'src/roles/roles.guard';
@@ -17,7 +17,7 @@ export class ShiftsController {
   @UseGuards(CommanderGuard)
   @Post('create-shift-for-soldier/:id')
   createForSoldier(@Body() createShiftDto: CreateShiftDto,
-    @Param() id: number) {
+    @Param('id') id: string) {
     return this.shiftsService.createForSoldier(createShiftDto, id);
   }
 

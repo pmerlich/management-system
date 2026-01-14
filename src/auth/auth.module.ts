@@ -8,7 +8,7 @@ import { usersProviders } from 'src/users/entities/user.providers';
   imports:[
     JwtModule.register({
       global: true,
-      secret: "jwtConstants.secret",
+      secret: process.env.JWT_SECRET ?? "jwtConstants.secret",
       signOptions: { expiresIn: '6h' }})
   ],
   controllers: [AuthController],

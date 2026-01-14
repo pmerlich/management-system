@@ -1,8 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { LoginAuthDto } from './dto/login-auth-dto';
-import { CommanderGuard } from 'src/roles/roles.guard';
 
 @Controller('auth')
 export class AuthController {

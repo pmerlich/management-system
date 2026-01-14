@@ -13,5 +13,5 @@ export class Assignment extends Model{
 
     @ForeignKey(() => Shift)
     @Column
-    declare Shiftsid: number;
+    declare shiftId: number;
 }

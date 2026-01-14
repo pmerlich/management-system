@@ -7,7 +7,7 @@ export class CommanderGuard implements CanActivate {
   constructor(private jwtService: JwtService) { }
   async canActivate(context: ExecutionContext): Promise<boolean> {    
     const request = context.switchToHttp().getRequest();
-    const token = request.headers.authorization;    
+    const token = this.extractToken(request.headers.authorization);    
     if (!token) {      
       throw new UnauthorizedException();
     }
@@ -23,6 +23,17 @@ export class CommanderGuard implements CanActivate {
       throw new UnauthorizedException();
     }
   }
+
+  private extractToken(authorizationHeader?: string): string | undefined {
+    if (!authorizationHeader) {
+      return undefined;
+    }
+    const [type, token] = authorizationHeader.split(' ');
+    if (type?.toLowerCase() === 'bearer' && token) {
+      return token;
+    }
+    return authorizationHeader;
+  }
 }
 
 @Injectable()
@@ -30,7 +41,7 @@ export class TokenGuard implements CanActivate {
   constructor(private jwtService: JwtService) { }
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = request.headers.authorization;
+    const token = this.extractToken(request.headers.authorization);
     if (!token) {      
       throw new UnauthorizedException();
     }
@@ -42,5 +53,16 @@ export class TokenGuard implements CanActivate {
     catch {      
       throw new UnauthorizedException();
     }
+  }
+
+  private extractToken(authorizationHeader?: string): string | undefined {
+    if (!authorizationHeader) {
+      return undefined;
+    }
+    const [type, token] = authorizationHeader.split(' ');
+    if (type?.toLowerCase() === 'bearer' && token) {
+      return token;
+    }
+    return authorizationHeader;
   }
 }
