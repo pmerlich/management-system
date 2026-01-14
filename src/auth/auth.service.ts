@@ -1,7 +1,6 @@
 import { Inject, Injectable, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginAuthDto } from './dto/login-auth-dto';
 import { User } from 'src/users/entities/user.entity';
@@ -39,16 +38,6 @@ export class AuthService {
         };
     }
 
-    
-    async findAll() {
-        const users =  await this.userRepository.findAll();
-        return users
-    }
-
-    findOne(id: number) {
-        return `This action returns a #${id} auth`;
-    }
-
     async findOneByName(name: string) {        
         const user = await this.userRepository.findOne({where: {name: name}})        
         if (user === null){
@@ -57,11 +46,5 @@ export class AuthService {
         return user
     }
 
-    update(id: number, updateAuthDto: UpdateAuthDto) {
-        return `This action updates a #${id} auth`;
-    }
 
-    remove(id: number) {
-        return `This action removes a #${id} auth`;
-    }
 }

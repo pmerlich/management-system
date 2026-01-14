@@ -1,34 +1,47 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Request, Get, Post, Body, Patch, Param, Delete, ValidationPipe, UseGuards, Put, Query } from '@nestjs/common';
 import { ShiftsService } from './shifts.service';
 import { CreateShiftDto } from './dto/create-shift.dto';
-import { UpdateShiftDto } from './dto/update-shift.dto';
+import { CommanderGuard, TokenGuard } from 'src/roles/roles.guard';
 
 @Controller('shifts')
 export class ShiftsController {
-  constructor(private readonly shiftsService: ShiftsService) {}
+  constructor(private readonly shiftsService: ShiftsService) { }
 
-  @Post()
-  create(@Body() createShiftDto: CreateShiftDto) {
-    return this.shiftsService.create(createShiftDto);
+  @UseGuards(TokenGuard)
+  @Post('create-shift')
+  create(@Body() createShiftDto: CreateShiftDto,
+    @Request() req: any) {
+    return this.shiftsService.create(createShiftDto, req.user);
   }
 
+  @UseGuards(CommanderGuard)
+  @Post('create-shift-for-soldier/:id')
+  createForSoldier(@Body() createShiftDto: CreateShiftDto,
+    @Param() id: number) {
+    return this.shiftsService.createForSoldier(createShiftDto, id);
+  }
+
+  @UseGuards(CommanderGuard)
   @Get()
   findAll() {
     return this.shiftsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.shiftsService.findOne(+id);
+  @UseGuards(TokenGuard)
+  @Get('my-shift')
+  findOne(@Request() req: any) {
+    return this.shiftsService.findAllByName(req.user);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateShiftDto: UpdateShiftDto) {
-    return this.shiftsService.update(+id, updateShiftDto);
+  @UseGuards(CommanderGuard)
+  @Put('transfer')
+  transfer(@Query('shiftId') shiftId: number, @Query('soldierId') soldierId: number ){
+    return this.shiftsService.transferShift(shiftId, soldierId);
   }
 
+  @UseGuards(CommanderGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string,) {
     return this.shiftsService.remove(+id);
   }
 }

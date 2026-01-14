@@ -4,8 +4,6 @@ import { User } from 'src/users/entities/user.entity';
 
 @Table
 export class Shift extends Model {
-    @Column
-    name: string;
     
     @Column
     startTime: Date;

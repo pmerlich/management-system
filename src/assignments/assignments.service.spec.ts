@@ -20,9 +20,3 @@ describe('AssignmentsService', () => {
 
 
 
-//לטיפול בהמשך כקישורי הטבלאות
-// async createshift(shift: Shift, Soldier:User) {
-//         const newshift = await this.injectshift.create<Shifts>({ startTime: shift.startTime, endTime: shift.endTime, location: shift.location })
-//         await newshift.$add('Users',Soldier.id)
-//         return await Soldier.$get('shifts')
-//     }
